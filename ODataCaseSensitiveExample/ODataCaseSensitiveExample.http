@@ -1,0 +1,6 @@
+@ODataCaseSensitiveExample_HostAddress = http://localhost:5164
+
+GET {{ODataCaseSensitiveExample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
