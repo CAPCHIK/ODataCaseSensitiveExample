@@ -23,7 +23,21 @@ app.UseODataRouteDebug();
 
 app.MapControllers();
 
-app.Run();
+var appRunTask = app.RunAsync();
+
+await Task.Delay(1000);
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+using var httpClient = new HttpClient();
+logger.LogInformation("All entities is OK: {Response}", await httpClient.GetStringAsync("http://localhost:5164/odata/Product"));
+logger.LogInformation("Select Id is OK: {Response}", await httpClient.GetStringAsync("http://localhost:5164/odata/Product?$select=Id"));
+logger.LogInformation("Select ID is OK: {Response}", await httpClient.GetStringAsync("http://localhost:5164/odata/Product?$select=ID"));
+
+var responseTopError = await httpClient.GetAsync("http://localhost:5164/odata/Product?$top=1");
+logger.LogInformation("Select top is broken, using ordering: {Code}, {Response}", responseTopError.StatusCode, await responseTopError.Content.ReadAsStringAsync());
+
+var responseOrderByError = await httpClient.GetAsync("http://localhost:5164/odata/Product?$orderby=Id");
+logger.LogInformation("OrderBy Id is broken: {Code}, {Response}", responseTopError.StatusCode, await responseTopError.Content.ReadAsStringAsync());
 
 public class ProductController : ODataController
 {
